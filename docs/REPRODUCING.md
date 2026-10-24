@@ -17,7 +17,8 @@ Step-by-step for someone starting from their own card. Read [`SAFETY.md`](SAFETY
 | OS | Windows 10/11 |
 | Python | 3.9+ |
 | Libraries | [nvidia-vbios-vix-editor](https://github.com/artyom-beilis/nvidia-vbios-vix-editor), PyTorch+CUDA |
-| Flash method | a registry-override wrapper, so rollback is a reboot away |
+| Flash tool | [nvidia-windows-vbios-vix-loader](https://github.com/artyom-beilis/nvidia-windows-vbios-vix-loader) (registry override wrapper) |
+| Cooling | High-static-pressure server fan / ducted blower (V100 SXM2 is passively cooled) |
 
 Set the library path once:
 
@@ -30,13 +31,10 @@ set NVBIOS_EDITOR_SRC=D:\path\to\nvidia-vbios-vix-editor\src
 ## Step 0 — Back up and baseline
 
 ```bash
-# dump your VBIOS (GPU-Z → Save BIOS, or nvflash --save)
+# 1. Dump your VBIOS (GPU-Z → Save BIOS, or nvflash --save)
 copy my_rom.rom my_rom.original.rom
-```
 
-Record the stock numbers before changing anything:
-
-```bash
+# 2. Record stock baseline numbers:
 nvidia-smi --query-gpu=clocks.max.sm,clocks.current.memory,power.limit --format=csv
 ```
 
@@ -44,7 +42,12 @@ Write them down. Without a baseline you cannot tell whether a change did anythin
 
 > **Important — Single-chain (`e0end`) payload requirement:**
 > A full raw SPI dump from GPU-Z or nvflash is typically ~330 KiB and contains redundant multi-chain flash. The Windows driver's registry override buffer accepts only a **single complete image chain** ending at the last data image (type `0xE0`, exact size 253,440 bytes on our reference dump).
-> Before modifying or flashing via registry override, normalize your dump using Vix Editor (`--representation turing-e0-end-v1`, which exports `<name>-loader-e0end.bin`) or ensure your working image is truncated to the primary 253,440-byte chain (carrying the last-image flag on Image 3). Overriding with an un-truncated multi-chain dump will be rejected by `nvlddmkm.sys`.
+> 
+> Normalize your dump to a clean single chain before modifying:
+> ```bash
+> python -m nvidia_vbios.editor my_rom.rom --representation turing-e0-end-v1 --save-rom my_rom_e0end.rom
+> ```
+> Verify that `my_rom_e0end.rom` is exactly **253,440 bytes** and terminates with Image 3. Overriding with an un-truncated multi-chain dump will be rejected by `nvlddmkm.sys`.
 
 ---
 
@@ -53,8 +56,8 @@ Write them down. Without a baseline you cannot tell whether a change did anythin
 Run the dumpers on **your** image and compare against `notes.md` §2:
 
 ```bash
-python tools/dump_clkprog_all.py my_rom.rom
-python tools/dump_img3_mems.py my_rom.rom
+python tools/dump_clkprog_all.py my_rom_e0end.rom
+python tools/dump_img3_mems.py my_rom_e0end.rom
 ```
 
 What you are checking:
@@ -73,7 +76,7 @@ To confirm a candidate offset is the right field, change it by a small amount an
 *reported* value moves:
 
 ```bash
-python tools/tune_core.py --base my_rom.rom --a0 110 --gpc 1900 --xbar 1900 --sys 1900 --out probe.rom
+python tools/tune_core.py --base my_rom_e0end.rom --a0 110 --gpc 1900 --xbar 1900 --sys 1900 --out probe.rom
 # flash probe.rom, reboot, then:
 nvidia-smi -q -d CLOCK | grep -A2 "Max Clocks"
 ```
@@ -107,7 +110,7 @@ undervolted, which shows up as wrong results rather than a crash.
 
 ```bash
 # write the clock fields
-python tools/tune_core.py --base my_rom.rom --a0 150 --gpc 1912 --xbar 1900 --sys 1900 --out stage1.rom
+python tools/tune_core.py --base my_rom_e0end.rom --a0 150 --gpc 1912 --xbar 1900 --sys 1900 --out stage1.rom
 
 # add the curve offset (negative raises the voltage the core sees)
 python tools/apply_vfe_gpc_offset.py --base stage1.rom --offset -50 --out stage2.rom
