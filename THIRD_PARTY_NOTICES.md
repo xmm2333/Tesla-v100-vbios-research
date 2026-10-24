@@ -60,24 +60,34 @@ Source: <https://github.com/artyom-beilis/nvidia-vbios-vix-editor>
 
 ### 2.2 What is derived from its documentation and implementation
 
-This is the part worth stating plainly: several **concepts and layouts used throughout this
-repository were established by that project, not by this one**:
+This is the part worth stating plainly: several **core architecture concepts and layouts used
+throughout this repository were established by that project, not by this one**:
 
-- the VFE table's equation format (kind byte, variable byte, next link, five floats) and the
-  **root / slot / constant-equation mechanism** used to apply a curve offset;
-- the interpretation of the BIT token chain and the table pointers it carries
-  (`clkprog`, `clocks`, P-State, power, VFE);
-- the layout of the **factory-clock entries** (`A0` / `A1`) and how their flag + s32 kHz payload
-  is read;
-- the per-domain **clock table offset windows** (GPC / XBAR / DRAM / SYS …) and the meaning of the
-  `usage` / `min` / `max` fields.
+- **The single-chain `0xE0` / `e0end` representation format**: identifying that Windows kernel display
+  driver `nvlddmkm.sys` only accepts single-chain VBIOS payloads in registry overrides (`EnableGpuFirmware = 0x11`).
+  The method of truncating the dump to terminate at the primary NPDS data image (type `0xE0`) with the
+  PCIR `last-image` indicator bit set (known as the `turing-e0-end-v1` / `e0end` representation) was originated
+  and documented by Artyom Beilis;
+- **NPDS checksum balancing**: the checksum rule where every sub-image (including type `0xE0` data blocks)
+  must satisfy `sum(bytes) % 256 == 0`, and the technique of balancing modified tables by adjusting the
+  trailing checksum byte;
+- **The VFE root / slot / constant-equation mechanism**: the internal format of the Voltage-Frequency
+  Equation table (kind byte, variable byte, next link, five 32-bit floats) and the elegant technique of
+  allocating a free VFE slot as a constant-MHz equation and inserting it into the root link chain to offset
+  the curve without touching polynomial coefficients (`gpc_curve_slot`, `vfe_constant_mhz`);
+- **The BIT token chain**: walking the BIT header and locating sub-table pointers (`clkprog`, `clocks`,
+  P-State, power, VFE);
+- **The factory-clock offset layout**: decoding the factory-clock entries (`A0` for core, `A1` for memory)
+  with their flag byte and signed 32-bit kHz payload;
+- **Clock table offset windows**: interpreting the per-domain offset windows (GPC / XBAR / DRAM / SYS …)
+  and the meaning of their `usage` / `min` / `max` fields.
 
 What this repository adds on top is the **empirical characterisation** of those fields on one board:
 which ones actually change hardware behaviour, the measured relationships between them, and the
 approaches that do not work (see `docs/notes.md`).
 
-If you are looking for the origin of the parsing logic, go to that project — it deserves the credit
-and the bug reports.
+If you are looking for the origin of the parsing logic and payload structure, go to that project — it deserves
+the credit and the bug reports.
 
 ---
 
@@ -91,6 +101,12 @@ and the bug reports.
 **Not redistributed.** Install it separately.
 
 Source: <https://github.com/artyom-beilis/nvidia-windows-vbios-vix-loader>
+
+**Derived concept:**
+The entire methodology of applying non-volatile-free, safe VBIOS modifications on modern Windows via
+`EnableGpuFirmware = 0x11` and `GpuFirmwareImage*` binary registry entries in the display device key was
+reverse-engineered, documented, and packaged by Artyom Beilis in `nvidia-windows-vbios-vix-loader`. This
+repository relies directly on that driver loading pathway for all experiments.
 
 ---
 

@@ -62,6 +62,10 @@ def apply_offset(input_rom, output_rom, offset_mhz):
     print(f"Saved {output_rom} successfully! Size: {len(blob)} bytes.")
 
 if __name__ == '__main__':
-    base_rom = 'test_400w_1800c_877m.rom'
-    apply_offset(base_rom, 'test_400w_vfe_plus100mhz.rom', 100)
-    apply_offset(base_rom, 'test_400w_vfe_plus150mhz.rom', 150)
+    import argparse
+    ap = argparse.ArgumentParser(description='Apply a VFE curve offset to a VBIOS image.')
+    ap.add_argument('--base', required=True, help='Input ROM image path')
+    ap.add_argument('--offset', type=float, required=True, help='VFE curve offset in MHz (can be negative)')
+    ap.add_argument('--out', required=True, help='Output ROM image path')
+    args = ap.parse_args()
+    apply_offset(args.base, args.out, args.offset)

@@ -6,15 +6,44 @@ revisions** — locate tables by their headers rather than trusting absolute add
 
 ---
 
-## 1. Image layout
+## 1. Image layout and chain structure
 
-The dump contains a PCI image and two NPDS images. The clock-related content lives in:
+### 1.1 Single-chain truncation (`e0end` representation)
 
-| Image | Contains |
-|---|---|
-| PCI (first) | clock-programming table, clock table (per-domain offset windows), init bytecode |
-| NPDS #1 (second) | clock table, P-State table, power table, VFE curve table, factory-clock entries |
-| NPDS #2 (third) | voltage-domain entries and other blocks, not characterised |
+A raw flash dump from a Volta card is typically 320–330 KiB, containing redundant image chains and trailing bank flash. However, the Windows kernel display driver (`nvlddmkm.sys`) only reserves a buffer for a **single complete image chain** when reading registry-based overrides (`EnableGpuFirmware = 0x11`).
+
+Passing a raw multi-chain dump triggers an out-of-bounds rejection, causing the driver to silently ignore the override and fall back to the physical onboard ROM.
+
+To load successfully via registry override, the image must use the **`e0-end` single-chain representation** established by [nvidia-vbios-vix-editor / vix-loader](https://github.com/artyom-beilis/nvidia-vbios-vix-editor):
+- The payload is truncated to terminate at the end of the primary NPDS data image (image type `0xE0`, exact length **253,440 bytes** on this V100 dump);
+- The last image carries the `last-image` indicator bit in its header;
+- Overriding with this 253,440-byte single chain is accepted by `nvlddmkm.sys` without buffer rejection.
+
+### 1.2 Verification and signature boundary (Image 0 vs Image 3)
+
+NvAPI runtime verification (`verify`) revealed a strict security boundary between images:
+- **Image 0 (Legacy PCIR code)**: The driver enforces strong whitelisting or signature checks on executable code blocks. Modifying bytes in Image 0 (e.g. attempting to alter clock offset ranges in Token C) triggers an immediate NvAPI verification mismatch (e.g. `first difference at offset 0x73c1`), causing the driver to discard the override.
+- **Image 3 (NPDS data image, type `0xE0`)**: The driver treats this section as dynamic parameter data. As long as its NPDS headers are well-formed and the trailing checksum byte satisfies `Sum % 256 == 0`, the driver accepts in-memory modifications. **All power, clock and VFE modifications must strictly reside in Image 3.**
+
+### 1.3 Sub-image overview
+
+| Image | Type | Offset Range | Contains |
+|---|---|---|---|
+| Image 0 (PCI) | 0x00 | `0x00000..0x0E3FF` | Legacy PCIR code, clock-programming table, init bytecode |
+| Image 1 (EFI) | 0x03 | `0x0E400..0x1FBFF` | UEFI driver |
+| Image 2 (NPDS) | 0xE0 | `0x1FC00..0x309FF` | Secondary tables, not characterised |
+| Image 3 (NPDS) | 0xE0 | `0x30A00..0x3DDFF` | Clock table, P-State table, power table, VFE curve table, factory-clock entries |
+
+### 1.4 Windows Fast Startup and driver re-initialization
+
+Windows 10/11 enables "Fast Startup" by default (`HiberbootEnabled = 1`), which persists the kernel session and loaded driver state into `hiberfil.sys` on a standard "Shut down". 
+
+Powering on from an S4 hybrid shutdown **does not** re-read device registry parameters or re-initialize `nvlddmkm.sys`, leaving any updated `EnableGpuFirmware` override unapplied.
+
+To ensure the new firmware payload is loaded into memory:
+- **Always use a full reboot** (e.g. `shutdown /r /t 0`), not a shutdown followed by power button;
+- **Disable Fast Startup** before testing (`reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Power" /v HiberbootEnabled /t REG_DWORD /d 0 /f`); or
+- **Restart the GPU device directly** using DevCon / PnPUtil (`pnputil /restart-device "<InstanceId>"`).
 
 ## 2. Field map (NPDS #1, offsets for this dump)
 
@@ -98,6 +127,8 @@ crash. Always re-run the GEMM error check.
 | Large negative VFE offset (e.g. −45 alone) | curve collapses; `Max Clocks` drops to ~1000 |
 | Raise `A0` without voltage compensation | silent computation errors |
 | Overwrite the PLL target immediate in the init script | breaks the instruction stream; telemetry reads N/A |
+| Modify bytes in Image 0 (e.g. Token C offset ranges) | driver signature mismatch (NvAPI error at `0x73c1`); fallback to physical ROM |
+| Load raw multi-chain dump (>253 KiB) via registry override | driver buffer limit exceeded; silent fallback to physical ROM |
 
 ## 6. Verification gate
 

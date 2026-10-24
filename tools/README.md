@@ -37,8 +37,8 @@ python diff_sxm3.py --a my_rom.rom --b other_rom.rom
 python tune_core.py --base my_rom.rom --a0 <n> --gpc <n> --xbar <n> --sys <n> --out tuned.rom
 
 # Apply a VFE curve offset (negative raises the voltage the core sees)
-python -c "from apply_vfe_gpc_offset import apply_offset; \
-           apply_offset('tuned.rom', 'final.rom', <offset_mhz>)"
+python apply_vfe_gpc_offset.py --base tuned.rom --offset -150 --out final.rom
+# (or programmatically: from apply_vfe_gpc_offset import apply_offset; apply_offset('in.rom', 'out.rom', -150))
 
 # Verification gate
 python gemm_benchmark.py

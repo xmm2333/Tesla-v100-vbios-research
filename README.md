@@ -153,13 +153,17 @@ yourself and point `NVBIOS_EDITOR_SRC` at its `src` directory.
 
 GPL-3.0 (see [`LICENSE`](LICENSE)).
 
-**A significant part of the parsing groundwork comes from
-[nvidia-vbios-vix-editor](https://github.com/artyom-beilis/nvidia-vbios-vix-editor)** — the VFE
-equation format and its root/slot offset mechanism, the BIT token chain, the factory-clock entry
-layout (`A0` / `A1`) and the per-domain clock-table window fields were all established there, not
-here. This repository uses its API directly and builds on those concepts; the contribution here is
-the empirical characterisation of how those fields behave on one board, including what does not
-work.
+**A significant part of the architecture and parsing groundwork comes from
+[nvidia-vbios-vix-editor](https://github.com/artyom-beilis/nvidia-vbios-vix-editor) and
+[nvidia-windows-vbios-vix-loader](https://github.com/artyom-beilis/nvidia-windows-vbios-vix-loader)**:
+- The **single-chain `0xE0` (`e0end`) payload structure** needed to bypass the Windows driver's registry override buffer limitation;
+- The **VFE curve root / slot / constant-equation insertion mechanism** for applying non-destructive curve offsets;
+- The **driver registry override pathway** (`EnableGpuFirmware = 0x11`);
+- The **BIT token parsing, factory-clock (`A0`/`A1`) layout**, and per-domain clock table offset windows.
+
+This repository uses their APIs and builds directly on those concepts; the contribution here is
+the empirical characterisation of how those fields behave on Volta (GV100), including the exact
+interplay between `A0`, XBAR and VFE undervolting, and what does not work.
 
 Full attribution and licence texts: [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
 

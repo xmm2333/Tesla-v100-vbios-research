@@ -1,0 +1,53 @@
+# === Firmware images — NEVER commit these ===
+*.rom
+*.ROM
+*.bin
+*.BIN
+*.efi
+*.EFI
+
+# === NVIDIA / third-party binaries ===
+*.dll
+*.DLL
+*.sys
+*.SYS
+*.exe
+*.EXE
+nvcuda.dll
+nvapi64.dll
+nvlddmkm.sys
+
+# === Vendored third-party projects (link, don't vendor) ===
+170tune-main/
+cmpunlocker-master/
+cmpunlocker-master_asm64-hooligan/
+nvidia-vbios-vix-editor-0.1.29/
+nvidia-vbios-vix-editor-main/
+nvidia-windows-vbios-vix-loader-main/
+gpu-unlock-main/
+Other_roms/
+
+# === Build / cache ===
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+node_modules/
+
+# === Local artifacts ===
+*.log
+*.tmp
+*.bak
+registry_*.reg
+*.reg
+test_*.rom
+running_*.rom
+flash_*.bat
+!examples/flash_example.bat
+!examples/restore_example.bat
+
+# === OS ===
+Thumbs.db
+.DS_Store
+desktop.ini

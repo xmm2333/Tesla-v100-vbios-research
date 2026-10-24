@@ -18,7 +18,7 @@ write your own for your own image.
 
 ## Minimal skeleton
 
-See [`flash_example.bat`](flash_example.bat). Replace `YOUR_ROM.rom` with your own image path.
+See [`flash_example.bat`](flash_example.bat) and [`restore_example.bat`](restore_example.bat). Replace `YOUR_ROM.rom` with your own image path.
 
 ## Rules that keep you out of trouble
 

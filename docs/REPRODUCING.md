@@ -42,6 +42,10 @@ nvidia-smi --query-gpu=clocks.max.sm,clocks.current.memory,power.limit --format=
 
 Write them down. Without a baseline you cannot tell whether a change did anything.
 
+> **Important — Single-chain (`e0end`) payload requirement:**
+> A full raw SPI dump from GPU-Z or nvflash is typically ~330 KiB and contains redundant multi-chain flash. The Windows driver's registry override buffer accepts only a **single complete image chain** ending at the last data image (type `0xE0`, exact size 253,440 bytes on our reference dump).
+> Before modifying or flashing via registry override, normalize your dump using Vix Editor (`--representation turing-e0-end-v1`, which exports `<name>-loader-e0end.bin`) or ensure your working image is truncated to the primary 253,440-byte chain (carrying the last-image flag on Image 3). Overriding with an un-truncated multi-chain dump will be rejected by `nvlddmkm.sys`.
+
 ---
 
 ## Step 1 — Confirm the tables are where this repository says
@@ -106,7 +110,7 @@ undervolted, which shows up as wrong results rather than a crash.
 python tools/tune_core.py --base my_rom.rom --a0 150 --gpc 1912 --xbar 1900 --sys 1900 --out stage1.rom
 
 # add the curve offset (negative raises the voltage the core sees)
-python -c "from apply_vfe_gpc_offset import apply_offset; apply_offset('stage1.rom', 'stage2.rom', -50)"
+python tools/apply_vfe_gpc_offset.py --base stage1.rom --offset -50 --out stage2.rom
 ```
 
 Verify the result before flashing:
@@ -121,6 +125,8 @@ nvidia-smi -q -d CLOCK                         # after flashing, Max Clocks must
 ## Step 4 — Flash
 
 Use the registry-override approach (see `../examples/`). Keep the restore script in the same folder.
+
+> **Reboot requirement:** Perform a complete reboot (`shutdown /r /t 0`) rather than a standard shutdown, or ensure Windows Fast Startup is disabled (`HiberbootEnabled = 0`), otherwise the driver restores its cached session and skips loading the new registry override.
 
 After reboot, the first thing to check is that the curve survived:
 
