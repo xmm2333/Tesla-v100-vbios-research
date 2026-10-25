@@ -16,8 +16,8 @@ Step-by-step for someone starting from their own card. Read [`SAFETY.md`](SAFETY
 | Driver | 537.13 (other versions untested) |
 | OS | Windows 10/11 |
 | Python | 3.9+ |
-| Libraries | [nvidia-vbios-vix-editor](https://github.com/artyom-beilis/nvidia-vbios-vix-editor), PyTorch+CUDA |
-| Flash tool | [nvidia-windows-vbios-vix-loader](https://github.com/artyom-beilis/nvidia-windows-vbios-vix-loader) (registry override wrapper) |
+| Libraries | [nvidia-vbios-vix-editor](https://github.com/Panchovix/nvidia-vbios-vix-editor), PyTorch+CUDA |
+| Flash tool | [nvidia-windows-vbios-vix-loader](https://github.com/Panchovix/nvidia-windows-vbios-vix-loader) (registry override wrapper) |
 | Cooling | High-static-pressure server fan / ducted blower (V100 SXM2 is passively cooled) |
 
 Set the library path once:

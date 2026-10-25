@@ -14,7 +14,7 @@ A raw flash dump from a Volta card is typically 320–330 KiB, containing redund
 
 Passing a raw multi-chain dump triggers an out-of-bounds rejection, causing the driver to silently ignore the override and fall back to the physical onboard ROM.
 
-To load successfully via registry override, the image must use the **`e0-end` single-chain representation** established by [nvidia-vbios-vix-editor / vix-loader](https://github.com/artyom-beilis/nvidia-vbios-vix-editor):
+To load successfully via registry override, the image must use the **`e0-end` single-chain representation** established by [nvidia-vbios-vix-editor / vix-loader](https://github.com/Panchovix/nvidia-vbios-vix-editor):
 - The payload is truncated to terminate at the end of the primary NPDS data image (image type `0xE0`, exact length **253,440 bytes** on this V100 dump);
 - The last image carries the `last-image` indicator bit in its header;
 - Overriding with this 253,440-byte single chain is accepted by `nvlddmkm.sys` without buffer rejection.

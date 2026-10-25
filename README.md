@@ -146,7 +146,7 @@ Full walkthrough in [`docs/REPRODUCING.md`](docs/REPRODUCING.md). The short vers
 | `nvapi_pstates.py` | Read P-State info via NVAPI |
 
 Requirements: Windows 10/11, driver 537.13, Python 3.9+. Some tools import
-[nvidia-vbios-vix-editor](https://github.com/artyom-beilis/nvidia-vbios-vix-editor) — install it
+[nvidia-vbios-vix-editor](https://github.com/Panchovix/nvidia-vbios-vix-editor) — install it
 yourself and point `NVBIOS_EDITOR_SRC` at its `src` directory.
 
 ## Licence and third parties
@@ -154,8 +154,8 @@ yourself and point `NVBIOS_EDITOR_SRC` at its `src` directory.
 GPL-3.0 (see [`LICENSE`](LICENSE)).
 
 **A significant part of the architecture and parsing groundwork comes from
-[nvidia-vbios-vix-editor](https://github.com/artyom-beilis/nvidia-vbios-vix-editor) and
-[nvidia-windows-vbios-vix-loader](https://github.com/artyom-beilis/nvidia-windows-vbios-vix-loader)**:
+[nvidia-vbios-vix-editor](https://github.com/Panchovix/nvidia-vbios-vix-editor) and
+[nvidia-windows-vbios-vix-loader](https://github.com/Panchovix/nvidia-windows-vbios-vix-loader)**:
 - The **single-chain `0xE0` (`e0end`) payload structure** needed to bypass the Windows driver's registry override buffer limitation;
 - The **VFE curve root / slot / constant-equation insertion mechanism** for applying non-destructive curve offsets;
 - The **driver registry override pathway** (`EnableGpuFirmware = 0x11`);

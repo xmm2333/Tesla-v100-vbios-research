@@ -47,7 +47,7 @@ Source: <https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree
 
 **Not redistributed.** Install it separately and point `NVBIOS_EDITOR_SRC` at its `src` directory.
 
-Source: <https://github.com/artyom-beilis/nvidia-vbios-vix-editor>
+Source: <https://github.com/Panchovix/nvidia-vbios-vix-editor>
 
 ### 2.1 What is used directly (API calls)
 
@@ -100,7 +100,7 @@ the credit and the bug reports.
 
 **Not redistributed.** Install it separately.
 
-Source: <https://github.com/artyom-beilis/nvidia-windows-vbios-vix-loader>
+Source: <https://github.com/Panchovix/nvidia-windows-vbios-vix-loader>
 
 **Derived concept:**
 The entire methodology of applying non-volatile-free, safe VBIOS modifications on modern Windows via

@@ -12,7 +12,7 @@ write your own for your own image.
 5. **Reboot.**
 
 > `vix_loader.bat` in the skeleton is a thin launcher for the GPL-3.0
-> [nvidia-windows-vbios-vix-loader](https://github.com/artyom-beilis/nvidia-windows-vbios-vix-loader)
+> [nvidia-windows-vbios-vix-loader](https://github.com/Panchovix/nvidia-windows-vbios-vix-loader)
 > (`python -m nvidia_vbios.windows_loader`). It is **not** included in this repository — install the
 > loader yourself and place its launcher next to your flash script.
 

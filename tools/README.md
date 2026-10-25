@@ -7,7 +7,7 @@ All scripts operate on a VBIOS dump **you** supply — none of them contain firm
 | Dependency | Needed by |
 |---|---|
 | Python 3.9+ | all |
-| [nvidia-vbios-vix-editor](https://github.com/artyom-beilis/nvidia-vbios-vix-editor) | `tune_core.py`, `apply_vfe_gpc_offset.py`, `dump_*.py`, `diff_sxm3.py` |
+| [nvidia-vbios-vix-editor](https://github.com/Panchovix/nvidia-vbios-vix-editor) | `tune_core.py`, `apply_vfe_gpc_offset.py`, `dump_*.py`, `diff_sxm3.py` |
 | PyTorch + CUDA | `gemm_benchmark.py` |
 | CUDA runtime / NVAPI | `mem_bw_test.py`, `mem_integrity_test.py`, `nvapi_pstates.py` |
 
