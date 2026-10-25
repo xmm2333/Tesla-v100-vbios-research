@@ -5,7 +5,9 @@ tooling used to characterise and tune clock-related fields.
 
 > **No firmware is included.** To reproduce any of this you must dump the VBIOS of your own card
 > (GPU-Z → *Save BIOS*, or `nvflash --save`). Everything here operates on a dump you supply.
-
+> **This repository is completed by AI** AI may make mistakes.You use this software entirely at your own risk.
+> Any modification you make with it, anything derived from it or from its output, and any damage that results,
+> is solely your responsibility. AT LEAST USING AI AGENT TO CHECK THIS PROJECT BEFORE USING IT!
 ---
 
 ## Configuration
