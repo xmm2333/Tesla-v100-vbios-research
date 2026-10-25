@@ -57,7 +57,13 @@ The combination verified end-to-end on the reference board:
 | `P+0x38` target clock | stock (1388) |
 | Power table rows 2 / 4 | 450 W |
 
+> [!CAUTION]
+> This configuration is workable on my own V100. I reached high performance on this configuration. USING THIS AT YOUR OWN RISK!
+
+
 The two numbers that matter as a pair are `A0` and the VFE offset. Their sum fixes the net lookup:
+
+
 
 ```
 net lookup = target clock − A0 + |VFE offset|
